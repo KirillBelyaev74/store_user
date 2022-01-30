@@ -9,3 +9,6 @@ class StoreUserApplication
 fun main(args: Array<String>) {
 	runApplication<StoreUserApplication>(*args)
 }
+
+fun String.capitalizeWords(): String = split(" ").joinToString(" ") { it.capitalize() }
+fun String.lowercaseWords(): String = split(" ").joinToString(" ") { it.lowercase() }
