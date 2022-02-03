@@ -4,5 +4,5 @@ data class UserDto(
     val id: Long? = null,
     val role: String? = null,
     val login: String? = null,
-    val password: String? = null
+    var password: String? = null
 )

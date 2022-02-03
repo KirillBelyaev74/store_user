@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package ru.store.store_user;
+
+// OBJECTS
+
+enum Status {
+    OK = 0;
+    BAD = 1;
+    ERROR = 2;
+}
+
+message Error {
+  string class = 1;
+  string message = 2;
+}
+
+message User {
+  int64 id = 1;
+  string role = 2;
+  string login = 3;
+  string password = 4;
+}
+
+// REQUEST
+
+message UserRequest {
+  User user = 1;
+}
+
+// RESPONSE
+
+message UserResponse {
+  Status status = 1;
+  Error error = 2;
+  User user = 3;
+}
+
+// SERVICE
+
+service UserService {
+  rpc saveUser(User) returns (UserResponse);
+  rpc getUserByLogin(User) returns (UserResponse);
+  rpc getUserById(User) returns (UserResponse);
+  rpc getUser(User) returns (UserResponse);
+  rpc delete(User) returns (UserResponse);
+}
