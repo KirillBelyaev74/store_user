@@ -13,7 +13,7 @@ import ru.store.store_user.mapper.UserMapper
 
 @Repository
 @PropertySource("classpath:database/select.sql.properties")
-class UserRepository: IUserRerository {
+open class UserRepository: IUserRerository {
 
     @Autowired
     private lateinit var jdbcTemplate: NamedParameterJdbcTemplate

@@ -1,5 +1,6 @@
 package ru.store.store_user.grpc.mapper
 
+import com.google.protobuf.StringValue
 import ru.store.store_user.UserOuterClass.UserResponse
 import ru.store.store_user.UserOuterClass.User
 import ru.store.store_user.UserOuterClass.Status
@@ -10,19 +11,18 @@ object UserRequestGrpcMapper {
 
     fun userRequestMapper(user: User?): UserDto {
         return UserDto(
-            id = user?.id ?: 0,
-            role = user?.role ?: "",
-            login = user?.login ?: "",
-            password = user?.password ?: ""
+            id = if (user?.hasId() == true) user.id.value else null,
+            role = if (user?.hasRole() == true) user.role.value else null,
+            login = if (user?.hasLogin() == true) user.login.value else null,
+            password = if (user?.hasPassword() == true) user.password.value else null
         )
     }
 
     fun userResponseMapperOk(userDto: UserDto?): UserResponse {
-        val user = User.newBuilder().apply {  ->
-            userDto?.id?.let { id = it }
-            userDto?.role?.let { role = it }
-            userDto?.login?.let { login = it }
-            userDto?.password?.let { password = it }
+        val user = User.newBuilder().apply {
+            role = StringValue.of(userDto?.role)
+            login = StringValue.of(userDto?.login)
+            password = StringValue.of(userDto?.password)
         }.build()
 
         val status = Status.OK
