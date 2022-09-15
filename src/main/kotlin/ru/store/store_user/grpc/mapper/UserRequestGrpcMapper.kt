@@ -5,24 +5,24 @@ import ru.store.store_user.UserOuterClass.UserResponse
 import ru.store.store_user.UserOuterClass.User
 import ru.store.store_user.UserOuterClass.Status
 import ru.store.store_user.UserOuterClass.Error
+import ru.store.store_user.model.RoleDto
 import ru.store.store_user.model.UserDto
 
 object UserRequestGrpcMapper {
 
     fun userRequestMapper(user: User?): UserDto {
         return UserDto(
-            id = if (user?.hasId() == true) user.id.value else null,
-            role = if (user?.hasRole() == true) user.role.value else null,
             login = if (user?.hasLogin() == true) user.login.value else null,
-            password = if (user?.hasPassword() == true) user.password.value else null
+            password = if (user?.hasPassword() == true) user.password.value else null,
+            roles = if (user?.rolesCount == 0) user.rolesList.map { RoleDto(it.value) } else null,
         )
     }
 
     fun userResponseMapperOk(userDto: UserDto?): UserResponse {
         val user = User.newBuilder().apply {
-            role = StringValue.of(userDto?.role)
             login = StringValue.of(userDto?.login)
             password = StringValue.of(userDto?.password)
+            addAllRoles(userDto?.roles?.map { StringValue.of(it.name) })
         }.build()
 
         val status = Status.OK
@@ -34,10 +34,14 @@ object UserRequestGrpcMapper {
     }
 
     fun userActionMapperOk(result: Int?): UserResponse {
-        return when(result) {
-            1 -> UserResponse.newBuilder().setStatus(Status.OK).build()
-            else -> UserResponse.newBuilder().setStatus(Status.BAD).build()
-        }
+        val user = User.newBuilder().apply { login = StringValue.of(result.toString()) }.build()
+
+        val status = Status.OK
+
+        return UserResponse.newBuilder()
+            .setStatus(status)
+            .setUser(user)
+            .build()
     }
 
     fun userActionMapperError(e: Exception): UserResponse {

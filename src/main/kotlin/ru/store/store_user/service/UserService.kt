@@ -1,57 +1,45 @@
 package ru.store.store_user.service
 
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
-import ru.store.store_user.encryption.EncoderDecoder
-import ru.store.store_user.lowercaseWords
+import ru.store.store_user.model.RoleDto
 import ru.store.store_user.model.UserDto
-import ru.store.store_user.repository.IUserRerository
-import kotlin.math.log
+import ru.store.store_user.repository.IUserRepository
 
 @Service
-class UserService(
-    private val repository: IUserRerository,
-    private val encoderDecoder: EncoderDecoder
-    ): IUserService {
+class UserService(private val repository: IUserRepository, private val passwordEncoder: PasswordEncoder): IUserService {
 
-    override fun save(userDto: UserDto): Int {
-        if (userDto.login.isNullOrBlank() ||
-            userDto.password.isNullOrBlank() ||
-            userDto.role.isNullOrBlank()) {
-            throw IllegalArgumentException("Not correct login: ${userDto.login} or password or role")
+    override fun saveUser(userDto: UserDto): Int {
+        if (userDto.login.isNullOrBlank() || userDto.password.isNullOrBlank() || userDto.roles?.isEmpty() == true) {
+            throw IllegalArgumentException("No correct parameters login: ${userDto.login} or roles: ${userDto.roles} or password")
         }
-        userDto.apply { password = password?.let { encoderDecoder.encoder(it) } }
-        return repository.save(userDto)
+        userDto.password = passwordEncoder.encode(userDto.password)
+        var response = repository.saveUser(userDto)
+        userDto.roles?.filter { !it.name.isNullOrBlank() }?.forEach { response += saveAuthority(userDto.login, it.name) }
+        return response
     }
 
-    override fun getUserByLogin(login: String): UserDto? {
+    override fun saveAuthority(login: String?, role: String?): Int {
+        return repository.saveAuthority(login, role)
+    }
+
+    override fun getUserByLogin(login: String?): UserDto? {
         if (login.isNullOrBlank()) throw IllegalArgumentException("Not correct login: $login")
-        return repository.getUserByLogin(login)?.apply {
-            password?.let { encoderDecoder.decoder(it) }
-        }
+        return repository.getUserByLogin(login)?.apply { roles = getAuthoritiesByLogin(login) }
     }
 
-    override fun getUserById(id: Long): UserDto? {
-        if (id <= 0) throw IllegalArgumentException("Not correct id: $id")
-
-        return repository.getUserById(id)?.apply {
-            password?.let { encoderDecoder.decoder(it) }
-        }
+    override fun getAuthoritiesByLogin(login: String): List<RoleDto> {
+        if (login.isNullOrBlank()) throw IllegalArgumentException("Not correct login: $login")
+        return repository.getAuthoritiesByLogin(login)
     }
 
-    override fun getUser(userDto: UserDto): UserDto? {
-        if (userDto.login.isNullOrBlank() || userDto.password.isNullOrBlank()) {
-            throw IllegalArgumentException("Not correct login: ${userDto.login} or password")
-        }
-
-        userDto.password = encoderDecoder.encoder(userDto.password!!)
-
-        return repository.getUser(userDto)?.apply {
-            password?.let { encoderDecoder.decoder(it) }
-        }
+    override fun getAuthoritiesByAuthority(role: String): String? {
+        if (role.isNullOrBlank()) throw IllegalArgumentException("Not correct login: $role")
+        return repository.getAuthoritiesByAuthority(role)
     }
 
-    override fun delete(id: Long): Int {
-        if (id <= 0) throw IllegalArgumentException("Not correct id: $id")
-        return repository.delete(id)
+    override fun delete(login: String?): Int {
+        if (login.isNullOrBlank()) throw IllegalArgumentException("Not correct login: $login")
+        return repository.delete(login)
     }
 }

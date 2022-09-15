@@ -7,9 +7,9 @@ package ru.store.store_user;
 // OBJECTS
 
 enum Status {
-    OK = 0;
-    BAD = 1;
-    ERROR = 2;
+  OK = 0;
+  BAD = 1;
+  ERROR = 2;
 }
 
 message Error {
@@ -18,10 +18,9 @@ message Error {
 }
 
 message User {
-  google.protobuf.Int64Value id = 1;
-  google.protobuf.StringValue role = 2;
-  google.protobuf.StringValue login = 3;
-  google.protobuf.StringValue password = 4;
+  google.protobuf.StringValue login = 1;
+  google.protobuf.StringValue password = 2;
+  repeated google.protobuf.StringValue roles = 3;
 }
 
 // REQUEST
@@ -43,7 +42,5 @@ message UserResponse {
 service UserService {
   rpc saveUser(User) returns (UserResponse);
   rpc getUserByLogin(User) returns (UserResponse);
-  rpc getUserById(User) returns (UserResponse);
-  rpc getUser(User) returns (UserResponse);
   rpc delete(User) returns (UserResponse);
 }

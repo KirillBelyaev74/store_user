@@ -9,59 +9,63 @@ import ru.store.store_user.model.UserDto
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import ru.store.store_user.capitalizeWords
 import ru.store.store_user.lowercaseWords
+import ru.store.store_user.mapper.RoleMapper
 import ru.store.store_user.mapper.UserMapper
+import ru.store.store_user.model.RoleDto
 
 @Repository
 @PropertySource("classpath:database/select.sql.properties")
-open class UserRepository: IUserRerository {
+open class UserRepository: IUserRepository {
 
     @Autowired
     private lateinit var jdbcTemplate: NamedParameterJdbcTemplate
 
-    @Value("\${insertUser}")
-    private lateinit var insert: String
+    @Value("\${save.user}")
+    private lateinit var saveUser: String
+    @Value("\${save.authority}")
+    private lateinit var saveAuthority: String
 
-    @Value("\${find.user}")
-    private lateinit var findUser: String
-    @Value("\${find.user.by.login}")
+    @Value("\${select.user.and.password.by.login}")
     private lateinit var findUserByLogin: String
-    @Value("\${find.user.by.id}")
-    private lateinit var findUserById: String
+    @Value("\${select.user.and.authority.by.login}")
+    private lateinit var findAuthoritiesByLogin: String
+    @Value("\${select.user.and.authority.by.authority}")
+    private lateinit var findAuthorityByAuthority: String
 
-    @Value("\${delete}")
-    private lateinit var delete: String
+    @Value("\${delete.user.by.login}")
+    private lateinit var deleteUserByLogin: String
 
-    override fun save(userDto: UserDto): Int {
-        val user = userDto.login?.let { getUserByLogin(it) }
-        if (user != null) {
-            throw IllegalArgumentException("So login: ${userDto.login} exists")
-        }
-        return jdbcTemplate.update(
-            insert,
+    override fun saveUser(userDto: UserDto): Int {
+        return jdbcTemplate.update(saveUser,
             MapSqlParameterSource()
-                .addValue("role", userDto.role?.capitalizeWords())
                 .addValue("login", userDto.login?.lowercaseWords())
                 .addValue("password", userDto.password)
         )
     }
 
-    override fun getUser(userDto: UserDto): UserDto? {
-        return jdbcTemplate.query(
-            findUser,
-            mapOf("login" to userDto.login?.lowercaseWords(), "password" to userDto.password),
-            UserMapper()
-        ).firstOrNull()
+    override fun saveAuthority(login: String?, role: String?): Int {
+        return jdbcTemplate.update(saveAuthority,
+            MapSqlParameterSource()
+                .addValue("login", login?.lowercaseWords())
+                .addValue("authority", role?.lowercase())
+        )
     }
 
     override fun getUserByLogin(login: String): UserDto? {
-        return jdbcTemplate.query(findUserByLogin, mapOf("login" to login.lowercaseWords()), UserMapper()).firstOrNull()
+        val response = jdbcTemplate.query(findUserByLogin, mapOf("login" to login.lowercaseWords()), UserMapper()).firstOrNull()
+        response?.roles = getAuthoritiesByLogin(login)
+        return response
     }
 
-    override fun getUserById(id: Long): UserDto? {
-        return jdbcTemplate.query(findUserById, mapOf("id" to id), UserMapper()).firstOrNull()
+    override fun getAuthoritiesByLogin(login: String): List<RoleDto> {
+        return jdbcTemplate.query(findAuthoritiesByLogin, mapOf("login" to login.lowercaseWords()), RoleMapper())
     }
 
-    override fun delete(id: Long): Int {
-        return jdbcTemplate.update(delete, mapOf("id" to id))
+    override fun getAuthoritiesByAuthority(role: String): String? {
+        return jdbcTemplate.queryForObject(findAuthorityByAuthority, mapOf("authority" to role.lowercase()), String::class.java)
+    }
+
+    override fun delete(login: String): Int {
+        return jdbcTemplate.update(deleteUserByLogin, mapOf("login" to login.lowercaseWords()))
     }
 }

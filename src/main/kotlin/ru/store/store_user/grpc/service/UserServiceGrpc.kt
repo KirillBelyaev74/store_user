@@ -15,7 +15,7 @@ class UserServiceGrpc(private val service: UserService): UserServiceGrpc.UserSer
         responseObserver: StreamObserver<UserOuterClass.UserResponse>?
     ) {
         try {
-            val result = service.save(UserRequestGrpcMapper.userRequestMapper(request))
+            val result = service.saveUser(UserRequestGrpcMapper.userRequestMapper(request))
             val response = UserRequestGrpcMapper.userActionMapperOk(result)
             responseObserver?.onNext(response)
         } catch (e: Exception) {
@@ -30,37 +30,7 @@ class UserServiceGrpc(private val service: UserService): UserServiceGrpc.UserSer
         responseObserver: StreamObserver<UserOuterClass.UserResponse>?
     ) {
         try {
-            val result = UserRequestGrpcMapper.userRequestMapper(request).login?.let { service.getUserByLogin(it) }
-            val response = UserRequestGrpcMapper.userResponseMapperOk(result)
-            responseObserver?.onNext(response)
-        } catch (e: Exception) {
-            val error = UserRequestGrpcMapper.userActionMapperError(e)
-            responseObserver?.onNext(error)
-        }
-        responseObserver?.onCompleted()
-    }
-
-    override fun getUserById(
-        request: UserOuterClass.User?,
-        responseObserver: StreamObserver<UserOuterClass.UserResponse>?
-    ) {
-        try {
-            val result = UserRequestGrpcMapper.userRequestMapper(request).id?.let { service.getUserById(it) }
-            val response = UserRequestGrpcMapper.userResponseMapperOk(result)
-            responseObserver?.onNext(response)
-        } catch (e: Exception) {
-            val error = UserRequestGrpcMapper.userActionMapperError(e)
-            responseObserver?.onNext(error)
-        }
-        responseObserver?.onCompleted()
-    }
-
-    override fun getUser(
-        request: UserOuterClass.User?,
-        responseObserver: StreamObserver<UserOuterClass.UserResponse>?
-    ) {
-        try {
-            val result = service.getUser(UserRequestGrpcMapper.userRequestMapper(request))
+            val result = service.getUserByLogin(UserRequestGrpcMapper.userRequestMapper(request).login)
             val response = UserRequestGrpcMapper.userResponseMapperOk(result)
             responseObserver?.onNext(response)
         } catch (e: Exception) {
@@ -75,7 +45,7 @@ class UserServiceGrpc(private val service: UserService): UserServiceGrpc.UserSer
         responseObserver: StreamObserver<UserOuterClass.UserResponse>?
     ) {
         try {
-            val result = UserRequestGrpcMapper.userRequestMapper(request).id?.let { service.delete(it) }
+            val result = service.delete(UserRequestGrpcMapper.userRequestMapper(request).login)
             val response = UserRequestGrpcMapper.userActionMapperOk(result)
             responseObserver?.onNext(response)
         } catch (e: Exception) {
