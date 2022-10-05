@@ -7,8 +7,6 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.stereotype.Repository
 import ru.store.store_user.model.UserDto
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
-import ru.store.store_user.capitalizeWords
-import ru.store.store_user.lowercaseWords
 import ru.store.store_user.mapper.RoleMapper
 import ru.store.store_user.mapper.UserMapper
 import ru.store.store_user.model.RoleDto
@@ -38,7 +36,7 @@ open class UserRepository: IUserRepository {
     override fun saveUser(userDto: UserDto): Int {
         return jdbcTemplate.update(saveUser,
             MapSqlParameterSource()
-                .addValue("login", userDto.login?.lowercaseWords())
+                .addValue("login", userDto.login)
                 .addValue("password", userDto.password)
         )
     }
@@ -46,26 +44,24 @@ open class UserRepository: IUserRepository {
     override fun saveAuthority(login: String?, role: String?): Int {
         return jdbcTemplate.update(saveAuthority,
             MapSqlParameterSource()
-                .addValue("login", login?.lowercaseWords())
-                .addValue("authority", role?.lowercase())
+                .addValue("login", login)
+                .addValue("role", role?.lowercase())
         )
     }
 
     override fun getUserByLogin(login: String): UserDto? {
-        val response = jdbcTemplate.query(findUserByLogin, mapOf("login" to login.lowercaseWords()), UserMapper()).firstOrNull()
-        response?.roles = getAuthoritiesByLogin(login)
-        return response
+        return jdbcTemplate.query(findUserByLogin, mapOf("login" to login), UserMapper()).firstOrNull()
     }
 
     override fun getAuthoritiesByLogin(login: String): List<RoleDto> {
-        return jdbcTemplate.query(findAuthoritiesByLogin, mapOf("login" to login.lowercaseWords()), RoleMapper())
+        return jdbcTemplate.query(findAuthoritiesByLogin, mapOf("login" to login), RoleMapper())
     }
 
     override fun getAuthoritiesByAuthority(role: String): String? {
-        return jdbcTemplate.queryForObject(findAuthorityByAuthority, mapOf("authority" to role.lowercase()), String::class.java)
+        return jdbcTemplate.queryForObject(findAuthorityByAuthority, mapOf("role" to role.lowercase()), String::class.java)
     }
 
     override fun delete(login: String): Int {
-        return jdbcTemplate.update(deleteUserByLogin, mapOf("login" to login.lowercaseWords()))
+        return jdbcTemplate.update(deleteUserByLogin, mapOf("login" to login))
     }
 }

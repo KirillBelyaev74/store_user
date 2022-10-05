@@ -7,10 +7,10 @@ import org.springframework.security.crypto.password.NoOpPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 
 @Configuration
-class Config {
+open class Config {
 
     @Bean
-    fun passwordEncoder(): PasswordEncoder {
+    open fun passwordEncoder(): PasswordEncoder {
         return BCryptPasswordEncoder()
     }
 }

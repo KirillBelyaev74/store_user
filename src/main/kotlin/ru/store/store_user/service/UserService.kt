@@ -25,7 +25,11 @@ class UserService(private val repository: IUserRepository, private val passwordE
 
     override fun getUserByLogin(login: String?): UserDto? {
         if (login.isNullOrBlank()) throw IllegalArgumentException("Not correct login: $login")
-        return repository.getUserByLogin(login)?.apply { roles = getAuthoritiesByLogin(login) }
+        val response = repository.getUserByLogin(login)?.apply {
+            roles = getAuthoritiesByLogin(login)
+        }
+        println(response)
+        return response
     }
 
     override fun getAuthoritiesByLogin(login: String): List<RoleDto> {

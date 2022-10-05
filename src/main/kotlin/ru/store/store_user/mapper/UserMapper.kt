@@ -8,7 +8,7 @@ class UserMapper: RowMapper<UserDto> {
 
     override fun mapRow(rs: ResultSet, rowNum: Int): UserDto {
         return UserDto(
-            login = rs.getString("login"),
+            login = rs.getString("username"),
             password = rs.getString("password")
         )
     }
