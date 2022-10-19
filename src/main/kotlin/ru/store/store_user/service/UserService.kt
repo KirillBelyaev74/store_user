@@ -28,7 +28,6 @@ class UserService(private val repository: IUserRepository, private val passwordE
         val response = repository.getUserByLogin(login)?.apply {
             roles = getAuthoritiesByLogin(login)
         }
-        println(response)
         return response
     }
 
