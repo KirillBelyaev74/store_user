@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.stereotype.Repository
 import ru.store.store_user.model.UserDto
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
+import ru.logging.annotation.Log
 import ru.store.store_user.mapper.RoleMapper
 import ru.store.store_user.mapper.UserMapper
 import ru.store.store_user.model.RoleDto
@@ -33,6 +34,7 @@ open class UserRepository: IUserRepository {
     @Value("\${delete.user.by.login}")
     private lateinit var deleteUserByLogin: String
 
+    @Log
     override fun saveUser(userDto: UserDto): Int {
         return jdbcTemplate.update(saveUser,
             MapSqlParameterSource()
@@ -41,6 +43,7 @@ open class UserRepository: IUserRepository {
         )
     }
 
+    @Log
     override fun saveAuthority(login: String?, role: String?): Int {
         return jdbcTemplate.update(saveAuthority,
             MapSqlParameterSource()
@@ -49,18 +52,22 @@ open class UserRepository: IUserRepository {
         )
     }
 
+    @Log
     override fun getUserByLogin(login: String): UserDto? {
         return jdbcTemplate.query(findUserByLogin, mapOf("login" to login), UserMapper()).firstOrNull()
     }
 
+    @Log
     override fun getAuthoritiesByLogin(login: String): List<RoleDto> {
         return jdbcTemplate.query(findAuthoritiesByLogin, mapOf("login" to login), RoleMapper())
     }
 
+    @Log
     override fun getAuthoritiesByAuthority(role: String): String? {
         return jdbcTemplate.queryForObject(findAuthorityByAuthority, mapOf("role" to role.lowercase()), String::class.java)
     }
 
+    @Log
     override fun delete(login: String): Int {
         return jdbcTemplate.update(deleteUserByLogin, mapOf("login" to login))
     }
