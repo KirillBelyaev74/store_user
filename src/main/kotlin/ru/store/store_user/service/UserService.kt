@@ -8,7 +8,7 @@ import ru.store.store_user.model.UserDto
 import ru.store.store_user.repository.IUserRepository
 
 @Service
-class UserService(private val repository: IUserRepository, private val passwordEncoder: PasswordEncoder): IUserService {
+open class UserService(private val repository: IUserRepository, private val passwordEncoder: PasswordEncoder): IUserService {
 
     @Log
     override fun saveUser(userDto: UserDto): Int {
