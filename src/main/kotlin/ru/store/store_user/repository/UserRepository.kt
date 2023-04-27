@@ -4,13 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.PropertySource
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
-import org.springframework.stereotype.Repository
-import ru.store.store_user.model.UserDto
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
+import org.springframework.stereotype.Repository
 import ru.logging.annotation.Log
 import ru.store.store_user.mapper.RoleMapper
 import ru.store.store_user.mapper.UserMapper
 import ru.store.store_user.model.RoleDto
+import ru.store.store_user.model.UserDto
 
 @Repository
 @PropertySource("classpath:database/select.sql.properties")

@@ -1,10 +1,7 @@
 package ru.store.store_user.grpc.mapper
 
 import com.google.protobuf.StringValue
-import ru.store.store_user.UserOuterClass.UserResponse
-import ru.store.store_user.UserOuterClass.User
-import ru.store.store_user.UserOuterClass.Status
-import ru.store.store_user.UserOuterClass.Error
+import ru.store.store_user.UserOuterClass.*
 import ru.store.store_user.model.RoleDto
 import ru.store.store_user.model.UserDto
 
